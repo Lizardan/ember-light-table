@@ -1,8 +1,10 @@
 import Ember from 'ember';
-import callAction from 'ember-light-table/utils/call-action';
 
 const {
-  computed
+  computed,
+  isEmpty,
+  Mixin,
+  warn
 } = Ember;
 
 /**
@@ -15,7 +17,7 @@ const {
  * @private
  */
 
-export default Ember.Mixin.create({
+export default Mixin.create({
   /**
    * @property table
    * @type {Table}
@@ -35,6 +37,12 @@ export default Ember.Mixin.create({
    * @type {Object}
    */
   tableActions: null,
+
+  /**
+   * @property extra
+   * @type {Object}
+   */
+  extra: null,
 
   /**
    * @property fixed
@@ -67,6 +75,25 @@ export default Ember.Mixin.create({
   resizeOnDrag: false,
 
   /**
+   * CSS classes to be applied to an `<i class="lt-sort-icon"></i>` tag that is
+   * inserted into the column's `<th>` element when the column is sortable but
+   * not yet sorted.
+   *
+   * For instance, if you have installed `ember-font-awesome` or include the
+   * `font-awesome` assets manually (e.g. via a CDN), you can set
+   * `iconSortable` to `'fa fa-sort'`, which would yield this markup:
+   * `<i class="lt-sort-icon fa fa-sort"></i>`
+   *
+   * @property iconSortable
+   * @type {String}
+   * @default ''
+   */
+  iconSortable: '',
+
+  /**
+   * See `iconSortable`.  CSS classes to apply to `<i class="lt-sort-icon"></i>`
+   * when the column is sorted ascending.
+   *
    * @property iconAscending
    * @type {String}
    * @default ''
@@ -74,6 +101,9 @@ export default Ember.Mixin.create({
   iconAscending: '',
 
   /**
+   * See `iconSortable`.  CSS classes to apply to `<i class="lt-sort-icon"></i>`
+   * when the column is sorted descending.
+   *
    * @property iconDescending
    * @type {String}
    * @default ''
@@ -91,52 +121,86 @@ export default Ember.Mixin.create({
   subColumns: computed.readOnly('table.visibleSubColumns'),
   columns: computed.readOnly('table.visibleColumns'),
 
-  sortIcons: computed('iconAscending', 'iconDescending', function() {
-    return this.getProperties(['iconAscending', 'iconDescending']);
+  sortIcons: computed('iconSortable', 'iconAscending', 'iconDescending', function() {
+    return this.getProperties(['iconSortable', 'iconAscending', 'iconDescending']);
   }).readOnly(),
+
+  init() {
+    this._super(...arguments);
+
+    let fixed = this.get('fixed');
+    let height = this.get('sharedOptions.height');
+
+    warn(
+      'You did not set a `height` attribute for your table, but marked a header or footer to be fixed. This means that you have to set the table height via CSS. For more information please refer to:  https://github.com/offirgolan/ember-light-table/issues/446',
+      !fixed || fixed && !isEmpty(height),
+      { id: 'ember-light-table.height-attribute' }
+    );
+  },
 
   actions: {
     /**
      * onColumnClick action. Handles column sorting.
      *
      * @event onColumnClick
-     * @param  {Column}   column The column that was clicked
-     * @param  {Event}   event   The click event
+     * @param  {Column} column The column that was clicked
+     * @param  {Event} event The click event
      */
     onColumnClick(column) {
-      if(column.sortable && this.get('sortOnClick')) {
-        if(column.sorted) {
+      if (column.sortable && this.get('sortOnClick')) {
+        if (column.sorted) {
           column.toggleProperty('ascending');
         } else {
-          if(!this.get('multiColumnSort')) {
+          if (!this.get('multiColumnSort')) {
             this.get('table.sortedColumns').setEach('sorted', false);
           }
           column.set('sorted', true);
         }
       }
-      callAction(this, 'onColumnClick', ...arguments);
+      this.sendAction('onColumnClick', ...arguments);
     },
 
     /**
      * onColumnDoubleClick action.
      *
      * @event onColumnDoubleClick
-     * @param  {Column}   column The column that was clicked
-     * @param  {Event}   event   The click event
+     * @param  {Column} column The column that was clicked
+     * @param  {Event} event   The click event
      */
     onColumnDoubleClick(/* column */) {
-      callAction(this, 'onColumnDoubleClick', ...arguments);
+      this.sendAction('onColumnDoubleClick', ...arguments);
     },
 
     /**
      * onColumnResized action.
      *
      * @event onColumnResized
-     * @param  {Column}   column The column that was resized
-     * @param  {String}   width  The final width of the column
+     * @param  {Column} column The column that was resized
+     * @param  {String} width  The final width of the column
      */
     onColumnResized(/* column, width */) {
-      callAction(this, 'onColumnResized', ...arguments);
+      this.sendAction('onColumnResized', ...arguments);
+    },
+
+    /**
+     * onColumnDrag action.
+     *
+     * @event onColumnDrag
+     * @param  {Column} column The column that is being dragged
+     */
+    onColumnDrag(/* column */) {
+      this.sendAction('onColumnDrag', ...arguments);
+    },
+
+    /**
+     * onColumnDrop action.
+     *
+     * @event onColumnDrop
+     * @param  {Column} column The column that was dropped
+     * @param  {Boolean} isSuccess The column was successfully dropped and sorted
+     */
+    onColumnDrop(/* column, isSuccess */) {
+      this.sendAction('onColumnDrop', ...arguments);
     }
   }
 });

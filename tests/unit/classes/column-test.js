@@ -12,7 +12,7 @@ test('create column - default options', function(assert) {
   assert.equal(col.sorted, false);
   assert.equal(col.sorted, false);
   assert.equal(col.label, '');
-  assert.equal(col.subColumns, null);
+  assert.deepEqual(col.subColumns, []);
   assert.equal(col.component, null);
   assert.equal(col.cellComponent, null);
   assert.equal(col.valuePath, null);
@@ -29,10 +29,15 @@ test('create column - column instance', function(assert) {
   assert.equal(col2.label, 'Name');
 });
 
+test('reopen colum', function(assert) {
+  assert.equal(typeof Column.reopen, 'function', 'reopen is a function');
+  assert.equal(typeof Column.reopenClass, 'function', 'reopenClass is a function');
+});
+
 test('CP - isGroupColumn', function(assert) {
   let col = new Column();
   assert.ok(col);
-  assert.equal(col.subColumns, null);
+  assert.deepEqual(col.subColumns, []);
   assert.equal(col.get('isGroupColumn'), false);
 
   col.set('subColumns', [new Column()]);
@@ -71,4 +76,15 @@ test('CP - visibleSubColumns', function(assert) {
 
   col.set('hidden', true);
   assert.equal(col.get('visibleSubColumns.length'), 0);
+});
+
+test('subColumns / parent', function(assert) {
+  let col = new Column({
+    subColumns: [{}]
+  });
+  assert.ok(col);
+  assert.equal(col.subColumns.length, 1);
+
+  assert.equal(col.subColumns[0].get('parent'), col);
+
 });

@@ -6,8 +6,20 @@ import cssStyleify from 'ember-light-table/utils/css-styleify';
 const {
   assert,
   Component,
-  computed
+  computed,
+  inject,
+  observer,
+  on,
+  isNone,
+  isEmpty,
+  A: emberArray
 } = Ember;
+
+function intersections(array1, array2) {
+  return array1.filter((n) => {
+    return array2.indexOf(n) > -1;
+  });
+}
 
 /**
  * @module Light Table
@@ -35,6 +47,8 @@ const LightTable = Component.extend({
   classNameBindings: [':ember-light-table'],
   attributeBindings: ['style'],
 
+  media: inject.service(),
+
   /**
    * @property table
    * @type {Table}
@@ -42,7 +56,7 @@ const LightTable = Component.extend({
   table: null,
 
   /**
-   * This is used to propate custom user defined actions to custom cell and header components.
+   * This is used to propagate custom user defined actions to custom cell and header components.
    * As an example, lets say I have a table with a column defined with `cellComponent: 'delete-user'`
    *
    * ```hbs
@@ -69,6 +83,34 @@ const LightTable = Component.extend({
   tableActions: null,
 
   /**
+   * Object to store any arbitrary configuration meant to be used by custom
+   * components.
+   *
+   * ```hbs
+   * {{#light-table table
+   *   extra=(hash
+   *     highlightColor="yellow"
+   *    )
+   *    as |t|
+   *  }}
+   *   {{t.head}}
+   *   {{t.body}}
+   *   {{t.foot}}
+   * {{/light-table}}
+   * ```
+   *
+   * Now in all custom components, you can access this value like so:
+   *
+   * ```hbs
+   * <span style="background: {{extra.highlightColor}}">{{value}}<span>
+   * ```
+   *
+   * @property extra
+   * @type {Object}
+   */
+  extra: null,
+
+  /**
    * Table height.
    *
    * @property height
@@ -87,13 +129,50 @@ const LightTable = Component.extend({
   tableClassNames: '',
 
   /**
+   * Enable responsive behavior
+   *
+   * @property responsive
+   * @type {Boolean}
+   * @default false
+   */
+  responsive: false,
+
+  /**
+   * A hash to determine the number of columns to show per given breakpoint.
+   * If this is specified, it will override any column specific breakpoints.
+   *
+   * If we have the following breakpoints defined in `app/breakpoints.js`:
+   *
+   * - mobile
+   * - tablet
+   * - desktop
+   *
+   * The following hash can be passed in:
+   *
+   * ```js
+   * {
+   *  mobile: 2,
+   *  tablet: 4
+   * }
+   * ```
+   *
+   * If there is no rule specified for a given breakpoint (i.e. `desktop`),
+   * all columns will be shown.
+   *
+   * @property breakpoints
+   * @type {Object}
+   * @default null
+   */
+  breakpoints: null,
+
+  /**
    * Table component shared options
    *
    * @property sharedOptions
    * @type {Object}
    * @private
    */
-  sharedOptions: computed(function () {
+  sharedOptions: computed(function() {
     return {
       height: this.get('height'),
       fixedHeader: false,
@@ -101,13 +180,143 @@ const LightTable = Component.extend({
     };
   }).readOnly(),
 
-  style: computed('height', function () {
-    return cssStyleify(this.getProperties(['height']));
+  visibleColumns: computed.readOnly('table.visibleColumns'),
+
+  /**
+   * Calculates the total width of the visible columns via their `width`
+   * propert.
+   *
+   * Returns 0 for the following conditions
+   *  - All widths are not set
+   *  - Widths are not the same unit
+   *  - Unit cannot be determined
+   *
+   * @property totalWidth
+   * @type {Number}
+   * @private
+   */
+  totalWidth: computed('visibleColumns.[]', 'visibleColumns.@each.width', function() {
+    let visibleColumns = this.get('visibleColumns');
+    let widths = visibleColumns.getEach('width');
+    let unit = (widths[0] || '').match(/\D+$/);
+    let totalWidth = 0;
+
+    if (isEmpty(unit)) {
+      return 0;
+    }
+
+    unit = unit[0];
+
+    /*
+      1. Check if all widths are present
+      2. Check if all widths are the same unit
+     */
+    for (let i = 0; i < widths.length; i++) {
+      let width = widths[i];
+
+      if (isNone(width) || width.indexOf(unit) === -1) {
+        return 0;
+      }
+
+      totalWidth += parseInt(width, 10);
+    }
+
+    return `${totalWidth}${unit}`;
+  }),
+
+  style: computed('totalWidth', 'height', function() {
+    let totalWidth = this.get('totalWidth');
+    let style = this.getProperties(['height']);
+
+    if (totalWidth) {
+      style.width = totalWidth;
+      style.overflowX = 'auto';
+    }
+
+    return cssStyleify(style);
   }),
 
   init() {
     this._super(...arguments);
-    assert('[ember-light-table] table must be an instance of Table', this.get('table') instanceof Table);
+
+    let table = this.get('table');
+    let media = this.get('media');
+
+    assert('[ember-light-table] table must be an instance of Table', table instanceof Table);
+
+    if (isNone(media)) {
+      this.set('responsive', false);
+    }
+  },
+
+  onMediaChange: on('init', observer('media.matches.[]', 'table.allColumns.[]', function() {
+    let responsive = this.get('responsive');
+    let matches = this.get('media.matches');
+    let breakpoints = this.get('breakpoints');
+    let table = this.get('table');
+    let numColumns = 0;
+
+    if (!responsive) {
+      return;
+    }
+
+    this.send('onBeforeResponsiveChange', matches);
+
+    if (!isNone(breakpoints)) {
+      Object.keys(breakpoints).forEach((b) => {
+        if (matches.indexOf(b) > -1) {
+          numColumns = Math.max(numColumns, breakpoints[b]);
+        }
+      });
+
+      this._displayColumns(numColumns);
+    } else {
+      table.get('allColumns').forEach((c) => {
+        let breakpoints = c.get('breakpoints');
+        let isMatch = isEmpty(breakpoints) || intersections(matches, breakpoints).length > 0;
+        c.set('responsiveHidden', !isMatch);
+      });
+    }
+
+    this.send('onAfterResponsiveChange', matches);
+  })),
+
+  _displayColumns(numColumns) {
+    let table = this.get('table');
+    let hiddenColumns = table.get('responsiveHiddenColumns');
+    let visibleColumns = table.get('visibleColumns');
+
+    if (!numColumns) {
+      hiddenColumns.setEach('responsiveHidden', false);
+    } else if (visibleColumns.length > numColumns) {
+      emberArray(visibleColumns.slice(numColumns, visibleColumns.length)).setEach('responsiveHidden', true);
+    } else if (visibleColumns.length < numColumns) {
+      emberArray(hiddenColumns.slice(0, numColumns - visibleColumns.length)).setEach('responsiveHidden', false);
+    }
+  },
+
+  actions: {
+    /**
+     * onBeforeResponsiveChange action.
+     * Called before any column visibility is altered.
+     *
+     * @event onBeforeResponsiveChange
+     * @param  {Array} matches list of matching breakpoints
+     */
+    onBeforeResponsiveChange(/* matches */) {
+      this.sendAction('onBeforeResponsiveChange', ...arguments);
+    },
+
+    /**
+     * onAfterResponsiveChange action.
+     * Called after all column visibility has been altered.
+     *
+     * @event onAfterResponsiveChange
+     * @param  {Array} matches list of matching breakpoints
+     */
+    onAfterResponsiveChange(/* matches */) {
+      this.sendAction('onAfterResponsiveChange', ...arguments);
+    }
   }
 });
 

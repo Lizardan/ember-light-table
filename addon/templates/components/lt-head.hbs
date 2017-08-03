@@ -21,13 +21,17 @@
             {{component (concat 'light-table/columns/' column.type) column
               table=table
               tableActions=tableActions
+              extra=extra
               sortIcons=sortIcons
               resizeOnDrag=resizeOnDrag
               click=(action 'onColumnClick' column)
               doubleClick=(action 'onColumnDoubleClick' column)
-              columnResized=(action 'onColumnResized')}}
+              onColumnResized=(action 'onColumnResized')
+              onColumnDrag=(action 'onColumnDrag')
+              onColumnDrop=(action 'onColumnDrop')}}
           {{/each}}
         </tr>
+
         <tr>
           {{#each subColumns as |column|}}
             {{component (concat 'light-table/columns/' column.type) column
@@ -35,11 +39,14 @@
               rowspan=1
               classNames="lt-sub-column"
               tableActions=tableActions
+              extra=extra
               sortIcons=sortIcons
               resizeOnDrag=resizeOnDrag
               click=(action 'onColumnClick' column)
               doubleClick=(action 'onColumnDoubleClick' column)
-              columnResized=(action 'onColumnResized')}}
+              onColumnResized=(action 'onColumnResized')
+              onColumnDrag=(action 'onColumnDrag')
+              onColumnDrop=(action 'onColumnDrop')}}
           {{/each}}
         </tr>
       {{/if}}

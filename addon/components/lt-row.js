@@ -11,14 +11,15 @@ const Row = Component.extend({
   tagName: 'tr',
   classNames: ['lt-row'],
   classNameBindings: ['isSelected', 'isExpanded', 'canExpand:is-expandable', 'canSelect:is-selectable', 'row.classNames'],
-  attributeBindings: ['colspan'],
+  attributeBindings: ['colspan', 'data-row-id'],
 
   columns: null,
   row: null,
   tableActions: null,
+  extra: null,
   canExpand: false,
   canSelect: false,
-  colpan: 1,
+  colspan: 1,
 
   isSelected: computed.readOnly('row.selected'),
   isExpanded: computed.readOnly('row.expanded')

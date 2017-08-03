@@ -1,25 +1,26 @@
 import Ember from 'ember';
 
 const {
+  ArrayProxy,
   assert,
   isArray
 } = Ember;
 
 const EMPTY_ARRAY = [];
 
-export default Ember.ArrayProxy.extend({
+export default ArrayProxy.extend({
   /**
    * The model that will be synchronized to the content of this proxy
    * @property syncArray
    * @type {Array}
    */
-   syncArray: null,
+  syncArray: null,
 
-   /**
-    * @property syncEnabled
-    * @type {Boolean}
-    */
-   syncEnabled: true,
+  /**
+   * @property syncEnabled
+   * @type {Boolean}
+   */
+  syncEnabled: true,
 
   init() {
     this._super(...arguments);
@@ -40,7 +41,10 @@ export default Ember.ArrayProxy.extend({
       didChange: 'syncArrayDidChange'
     });
 
-    this.setProperties({ syncArray: null, content: null });
+    this.setProperties({
+      syncArray: null,
+      content: null
+    });
   },
 
   /**
@@ -63,17 +67,17 @@ export default Ember.ArrayProxy.extend({
     return objects;
   },
 
-  syncArrayWillChange() { /* Not needed */},
+  syncArrayWillChange() { /* Not needed */ },
 
   syncArrayDidChange(syncArray, start, removeCount, addCount) {
     let content = this.get('content');
     let objectsToAdd = EMPTY_ARRAY;
 
-    if(!this.get('syncEnabled')) {
+    if (!this.get('syncEnabled')) {
       return;
     }
 
-    if(addCount > 0) {
+    if (addCount > 0) {
       objectsToAdd = this.serializeContentObjects(syncArray.slice(start, start + addCount));
     }
 
@@ -83,7 +87,7 @@ export default Ember.ArrayProxy.extend({
   replaceContent(start, removeCount, objectsToAdd) {
     let syncArray = this.get('syncArray');
 
-    if(!this.get('syncEnabled')) {
+    if (!this.get('syncEnabled')) {
       return this._super(...arguments);
     }
 

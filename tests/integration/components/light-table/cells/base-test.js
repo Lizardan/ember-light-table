@@ -1,3 +1,4 @@
+import { find } from 'ember-native-dom-helpers';
 import Ember from 'ember';
 import { moduleForComponent, test } from 'ember-qunit';
 import hbs from 'htmlbars-inline-precompile';
@@ -11,9 +12,8 @@ test('it renders', function(assert) {
   this.set('column', new Column());
   this.render(hbs`{{light-table/cells/base column=column}}`);
 
-  assert.equal(this.$().text().trim(), '');
+  assert.equal(find('*').textContent.trim(), '');
 });
-
 
 test('cell with column format', function(assert) {
   this.set('column', new Column({
@@ -27,7 +27,7 @@ test('cell with column format', function(assert) {
 
   this.render(hbs`{{light-table/cells/base column row rawValue=2}}`);
 
-  assert.equal(this.$().text().trim(), '4');
+  assert.equal(find('*').textContent.trim(), '4');
 });
 
 test('cell format with no valuePath', function(assert) {
@@ -43,9 +43,8 @@ test('cell format with no valuePath', function(assert) {
 
   this.render(hbs`{{light-table/cells/base column row}}`);
 
-  assert.equal(this.$().text().trim(), '4');
+  assert.equal(find('*').textContent.trim(), '4');
 });
-
 
 test('cell with nested valuePath', function(assert) {
   this.set('column', new Column({
@@ -65,9 +64,9 @@ test('cell with nested valuePath', function(assert) {
 
   this.render(hbs`{{light-table/cells/base column row rawValue=(get row column.valuePath)}}`);
 
-  assert.equal(this.$().text().trim(), '4');
+  assert.equal(find('*').textContent.trim(), '4');
 
   Ember.run(() => this.get('row').set(this.get('column.valuePath'), 4));
 
-  assert.equal(this.$().text().trim(), '8');
+  assert.equal(find('*').textContent.trim(), '8');
 });

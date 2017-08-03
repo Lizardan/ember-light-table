@@ -1,10 +1,6 @@
-/* jshint node: true */
+/* eslint-env node */
 'use strict';
 
 module.exports = {
-  name: 'ember-light-table',
-
-  included: function(app) {
-    this._super.included.apply(this, arguments);
-  }
+  name: 'ember-light-table'
 };

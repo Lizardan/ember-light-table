@@ -1,8 +1,13 @@
 import Ember from 'ember';
 import layout from '../templates/components/lt-scrollable';
 
-const { Component } = Ember;
+const {
+  Component
+} = Ember;
 
 export default Component.extend({
-  layout
+  layout,
+  tagName: '',
+  vertical: true,
+  horizontal: false
 });

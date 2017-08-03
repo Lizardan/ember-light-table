@@ -1,11 +1,24 @@
 import Ember from 'ember';
+import fixProto from 'ember-light-table/utils/fix-proto';
 
- /**
-  * @module Table
-  * @class Row
-  */
-export default class Row extends Ember.ObjectProxy.extend({
+const {
+  computed,
+  guidFor,
+  ObjectProxy
+} = Ember;
+
+/**
+ * @module Table
+ * @extends Ember.ObjectProxy
+ * @class Row
+ */
+export default class Row extends ObjectProxy.extend({
   /**
+   * Whether the row is hidden.
+   *
+   * CSS Classes:
+   *  - `is-hidden`
+   *
    * @property hidden
    * @type {Boolean}
    * @default false
@@ -13,6 +26,11 @@ export default class Row extends Ember.ObjectProxy.extend({
   hidden: false,
 
   /**
+   * Whether the row is expanded.
+   *
+   * CSS Classes:
+   *  - `is-expanded`
+   *
    * @property expanded
    * @type {Boolean}
    * @default false
@@ -20,6 +38,11 @@ export default class Row extends Ember.ObjectProxy.extend({
   expanded: false,
 
   /**
+   * Whether the row is selected.
+   *
+   * CSS Classes:
+   *  - `is-selected`
+   *
    * @property selected
    * @type {Boolean}
    * @default false
@@ -33,6 +56,31 @@ export default class Row extends Ember.ObjectProxy.extend({
    * @type {String | Array}
    */
   classNames: null,
+
+  /**
+   * Data content for this row. Since this class extends Ember.ObjectProxy,
+   * all properties are forwarded to the content. This means that instead of
+   * `row.content.foo` you can just do `row.foo`. Please note that methods are
+   * not forwarded. You will not be able to do `row.save()`, instead, you would have
+   * to do `row.content.save()`.
+   *
+   * @property content
+   * @type {Object}
+   */
+  content: null,
+
+  /**
+   * Rows's unique ID.
+   *
+   * Note: named `rowId` in order to not shadow the `content.id` property.
+   *
+   * @property rowId
+   * @type {String}
+   * @readOnly
+   */
+  rowId: computed(function() {
+    return guidFor(this);
+  }).readOnly()
 }) {
   /**
    * @class Row
@@ -41,12 +89,18 @@ export default class Row extends Ember.ObjectProxy.extend({
    * @param {Object} options
    */
   constructor(content, options = {}) {
+    // TODO: Revert this, when babel#5862 is resolved.
+    //       https://github.com/babel/babel/issues/5862
+    super();
+
     if (content instanceof Row) {
       return content;
     }
 
-    super();
     this.setProperties(options);
     this.set('content', content);
   }
 }
+
+// https://github.com/offirgolan/ember-light-table/issues/436#issuecomment-310138868
+fixProto(Row);

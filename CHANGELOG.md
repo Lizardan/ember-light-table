@@ -1,6 +1,125 @@
 Changelog
 =========
 
+## v1.9.0
+
+### Pull Requests
+
+- [#390](https://github.com/offirgolan/ember-light-table/pull/390)  Move ember-truth-helpers to dependencies  *by [fsmanuel/chore](https://github.com/fsmanuel/chore)*
+- [#422](https://github.com/offirgolan/ember-light-table/pull/422)  Fix missing 'as body' on example code  *by [Ahmad Suhendri](https://github.com/ahmadsoe)*
+- [#438](https://github.com/offirgolan/ember-light-table/pull/438)  Modernize ELT, kill bower and enable yarn  *by [Jan Buschtöns](https://github.com/buschtoens)*
+- [#440](https://github.com/offirgolan/ember-light-table/pull/440) **tests/table**: isEmpty & isEmpty (enableSync = true)  *by [Jan Buschtöns](https://github.com/buschtoens)*
+- [#441](https://github.com/offirgolan/ember-light-table/pull/441) **readme**: add more information on collaborating  *by [Jan Buschtöns](https://github.com/buschtoens)*
+- [#439](https://github.com/offirgolan/ember-light-table/pull/439)  Polyfill support for __proto__ in IE <= 10  *by [Jan Buschtöns](https://github.com/buschtoens)*
+- [#421](https://github.com/offirgolan/ember-light-table/pull/421) **lt-body**: add enableScaffolding option  *by [Jan Buschtöns](https://github.com/buschtoens)*
+- [#445](https://github.com/offirgolan/ember-light-table/pull/445) **readme**: add link to #e-light-table Slack channel  *by [Jan Buschtöns](https://github.com/buschtoens)*
+- [#449](https://github.com/offirgolan/ember-light-table/pull/449) **head & foot**: make `table.height` optional, warn in `table-header` mixin  *by [Jan Buschtöns](https://github.com/buschtoens)*
+- [#451](https://github.com/offirgolan/ember-light-table/pull/451) **table**: add `setRowsSynced` method  *by [Jan Buschtöns](https://github.com/buschtoens)*
+
+#### Commits
+
+- [b0db5b15](https://github.com/offirgolan/ember-light-table/commit/b0db5b15d96e1b7bfd8f96a3001bfac6338ec0b3) **update ember-scrollable version (#408)**: //github.com/offirgolan/ember-light-table/issues/396 *by [Rusty Toms](https://github.com/RustyToms)*
+
+## v1.8.6
+
+### Pull Requests
+
+- [#385](https://github.com/offirgolan/ember-light-table/pull/385)  Fixes 'onScroll' deprecation  *by [Alex Alvarez](https://github.com/alexander-alvarez)*
+- [#386](https://github.com/offirgolan/ember-light-table/pull/386)  Move ember-cli-string-helpers to dependencies  *by [Jonathan Steele](https://github.com/ynnoj)*
+
+## v1.8.5
+
+### Pull Requests
+
+- [#383](https://github.com/offirgolan/ember-light-table/pull/383)  Fix for ember-composable-helpers addon incompatibility  *by [Nicholas McClay](https://github.com/nmcclay)*
+
+## v1.8.4
+
+### Pull Requests
+
+- [#348](https://github.com/offirgolan/ember-light-table/pull/348)  Update Column.js to support parent  *by [Alex Alvarez](https://github.com/alexander-alvarez)*
+
+## v1.8.3
+
+### Pull Requests
+
+- [#322](https://github.com/offirgolan/ember-light-table/pull/322)  Fix typo for default colspan  *by [Ilya Radchenko](https://github.com/knownasilya)*
+- [#318](https://github.com/offirgolan/ember-light-table/pull/318)  Change <span> to <i> tag for sorting icons  *by [Julie Graceffa](https://github.com/jewls618)*
+- [#332](https://github.com/offirgolan/ember-light-table/pull/332)  Bump ember-scrollable  *by [Offir Golan](https://github.com/offirgolan)*
+
+#### Commits
+
+- [70320d05](https://github.com/offirgolan/ember-light-table/commit/70320d05a99021e35d5c0878dccf6499ce88216c) **fix(package)**: update ember-get-config to version 0.2.1 *by [greenkeeper[bot]](https://github.com/greenkeeper[bot])*
+
+## v1.8.2
+
+### Pull Requests
+
+- [#321](https://github.com/offirgolan/ember-light-table/pull/321)  Update ember-scrollable to the latest version 🚀  *by [Offir Golan](https://github.com/offirgolan/greenkeeper)*
+
+#### Commits
+
+- [e2438a50](https://github.com/offirgolan/ember-light-table/commit/e2438a508e890ee7ccce7a02fde9654c047ebee8) **fix(package)**: update ember-scrollable to version 0.4.0 *by [greenkeeper[bot]](https://github.com/greenkeeper[bot])*
+
+## v1.8.1
+
+### Pull Requests
+- [#303](https://github.com/offirgolan/ember-light-table/pull/303)  Remove deprecated Ember.K  *by [cibernox](https://github.com/cibernox)*
+- [#308](https://github.com/offirgolan/ember-light-table/pull/308)  Update ember-in-viewport to the latest version 🚀  *by [Offir Golan](https://github.com/offirgolan/greenkeeper)*
+
+## v1.8.0
+
+### Pull Requests
+
+- [#290](https://github.com/offirgolan/ember-light-table/pull/290)  [FEATURE] Add selectOnClick option  *by [Offir Golan](https://github.com/offirgolan)*
+
+## v1.7.1
+
+### Pull Requests
+
+- [#286](https://github.com/offirgolan/ember-light-table/pull/286)  [BUGFIX] In viewport left/right tolerance adjustment  *by [Offir Golan](https://github.com/offirgolan)*
+
+## v1.7.0
+
+### Pull Requests
+
+- [#222](https://github.com/offirgolan/ember-light-table/pull/222)  [FEATURE] Support horizontal scrolling  *by [Offir Golan](https://github.com/offirgolan)*
+- [#281](https://github.com/offirgolan/ember-light-table/pull/281)  [BUGFIX] Resolve IE drag and drop crashes  *by [Offir Golan](https://github.com/offirgolan)*
+
+## v1.6.1
+
+### Pull Requests
+
+- [#266](https://github.com/offirgolan/ember-light-table/pull/266)  [BUGFIX] Require ember-scrollable@^0.3.5  *by [Jan Buschtöns](https://github.com/buschtoens)*
+
+## v1.6.0
+
+### Pull Requests
+
+- [#252](https://github.com/offirgolan/ember-light-table/pull/252)  [BUGFIX] Resizable column improvements  *by [Offir Golan](https://github.com/offirgolan)*
+- [#254](https://github.com/offirgolan/ember-light-table/pull/254)  [BUGFIX] repeated scrollToRow  *by [Jan Buschtöns](https://github.com/buschtoens)*
+- [#258](https://github.com/offirgolan/ember-light-table/pull/258)  [FEATURE] Draggable Columns  *by [Offir Golan](https://github.com/offirgolan)*
+
+## v1.5.2
+
+### Pull Requests
+
+- [#244](https://github.com/offirgolan/ember-light-table/pull/244)  [FEATURE] minResizeWidth + Event bubbling fix  *by [Offir Golan](https://github.com/offirgolan)*
+
+## v1.5.1
+
+### Pull Requests
+
+- [#241](https://github.com/offirgolan/ember-light-table/pull/241)  [BUGFIX] Add safe checks to scroll logic  *by [Offir Golan](https://github.com/offirgolan)*
+
+## v1.5.0
+
+### Pull Requests
+
+- [#221](https://github.com/offirgolan/ember-light-table/pull/221)  [FEATURE] Add label to base column to be used in column types  *by [Offir Golan](https://github.com/offirgolan)*
+- [#228](https://github.com/offirgolan/ember-light-table/pull/228)  [FEATURE] ScrollTo and ScrollToRow  *by [Jan Buschtöns](https://github.com/buschtoens)*
+- [#235](https://github.com/offirgolan/ember-light-table/pull/235)  [FEATURE] Responsive Columns  *by [Offir Golan](https://github.com/offirgolan)*
+
 ## v1.4.4
 
 ### Pull Requests

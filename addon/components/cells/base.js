@@ -24,15 +24,23 @@ const Cell = Component.extend({
   attributeBindings: ['style'],
   classNameBindings: ['align', 'isSorted', 'column.cellClassNames'],
 
+  enableScaffolding: false,
+
   isSorted: computed.readOnly('column.sorted'),
 
-  style: computed('column.width', function() {
-    return cssStyleify(this.get('column').getProperties(['width']));
+  style: computed('enableScaffolding', 'column.width', function() {
+    let column = this.get('column');
+
+    if (this.get('enableScaffolding') || !column) {
+      return '';
+    }
+
+    return cssStyleify(column.getProperties(['width']));
   }),
 
   align: computed('column.align', function() {
     return `align-${this.get('column.align')}`;
-  }).readOnly(),
+  }),
 
   /**
    * @property table
@@ -59,6 +67,12 @@ const Cell = Component.extend({
   tableActions: null,
 
   /**
+   * @property extra
+   * @type {Object}
+   */
+  extra: null,
+
+  /**
    * @property rawValue
    * @type {Mixed}
    */
@@ -69,9 +83,10 @@ const Cell = Component.extend({
    * @type {Mixed}
    */
   value: computed('rawValue', function() {
-    const rawValue = this.get('rawValue');
-    const format = this.get('column.format');
-    if(format && typeof format === 'function') {
+    let rawValue = this.get('rawValue');
+    let format = this.get('column.format');
+
+    if (format && typeof format === 'function') {
       return format.call(this, rawValue);
     }
     return rawValue;

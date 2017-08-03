@@ -27,6 +27,11 @@ test('create table - with options', function(assert) {
   assert.ok(table.columns[0] instanceof Column);
 });
 
+test('reopen table', function(assert) {
+  assert.equal(typeof Table.reopen, 'function', 'reopen is a function');
+  assert.equal(typeof Table.reopenClass, 'function', 'reopenClass is a function');
+});
+
 test('CP - visibleColumnGroups', function(assert) {
   let table = new Table();
   let col = new Column();
@@ -74,6 +79,28 @@ test('CP - allColumns', function(assert) {
   assert.equal(table.get('allColumns.length'), 5);
 });
 
+test('CP - isEmpty', function(assert) {
+  let table = new Table([{}, {}], []);
+
+  assert.ok(table, 'table is set up correctly');
+  assert.ok(table.get('isEmpty'), 'table is initially empty');
+  table.pushRow({});
+  assert.notOk(table.get('isEmpty'), 'table is not empty after a row was pushed');
+  table.setRows([]);
+  assert.ok(table.get('isEmpty'), 'table is empty again after the rows were cleared');
+});
+
+test('CP - isEmpty (enableSync = true)', function(assert) {
+  let rowsArray = emberArray();
+  let table = new Table([{}, {}], rowsArray, { enableSync: true });
+
+  assert.ok(table, 'table is set up correctly');
+  assert.ok(table.get('isEmpty'), 'table is initially empty');
+  rowsArray.pushObject({});
+  assert.notOk(table.get('isEmpty'), 'table is not empty after a row was pushed');
+  rowsArray.clear();
+  assert.ok(table.get('isEmpty'), 'table is empty again after the rows were cleared');
+});
 
 test('table method - setRows', function(assert) {
   let table = new Table();
@@ -136,7 +163,6 @@ test('table method - addRows', function(assert) {
 
   assert.equal(table.get('rows.lastObject.name'), 'Offir');
 });
-
 
 test('table method - pushRow', function(assert) {
   let table = new Table();
@@ -295,7 +321,6 @@ test('table method - addColumns', function(assert) {
   assert.equal(table.get('columns.lastObject.label'), 'Name');
 });
 
-
 test('table method - pushColumn', function(assert) {
   let table = new Table();
   let content = { label: 'Name' };
@@ -389,7 +414,7 @@ test('table method - removeColumns', function(assert) {
 });
 
 test('static table method - createRow', function(assert) {
-  let row = Table.createRow({ name: 'Offir'}, { selected: true });
+  let row = Table.createRow({ name: 'Offir' }, { selected: true });
   assert.ok(row instanceof Row);
   assert.equal(row.get('name'), 'Offir');
   assert.ok(row.get('selected'));
@@ -403,7 +428,7 @@ test('static table method - createRows', function(assert) {
 });
 
 test('static table method - createColumn', function(assert) {
-  let col = Table.createColumn({ label: 'Name'});
+  let col = Table.createColumn({ label: 'Name' });
   assert.ok(col instanceof Column);
   assert.equal(col.get('label'), 'Name');
 });
@@ -440,14 +465,14 @@ test('table modifications with sync enabled - stress', function(assert) {
   let rows = emberArray([]);
   let table = new Table([], rows, { enableSync: true });
 
-  for(let i = 0; i < 100; i++) {
+  for (let i = 0; i < 100; i++) {
     table.addRow({ position: i });
   }
 
   assert.equal(table.get('rows.length'), rows.get('length'));
   assert.deepEqual(table.get('rows').getEach('position'), rows.getEach('position'));
 
-  for(let i = 100; i < 200; i++) {
+  for (let i = 100; i < 200; i++) {
     rows.pushObject({ position: i });
   }
 
@@ -479,7 +504,7 @@ test('table modifications with sync enabled - sort', function(assert) {
   let table = new Table([], rows, { enableSync: true });
   let length = 5;
 
-  for(let i = 0; i < length; i++) {
+  for (let i = 0; i < length; i++) {
     rows.pushObject({ position: i });
   }
 
@@ -499,4 +524,28 @@ test('table modifications with sync enabled - sort', function(assert) {
 
   assert.equal(table.get('rows.length'), rows.get('length'));
   assert.deepEqual(table.get('rows').getEach('position'), rows.getEach('position'));
+});
+
+test('setRowsSynced', function(assert) {
+  let initialRows = emberArray([]);
+  let otherRows = emberArray([]);
+  let table = new Table([], initialRows, { enableSync: true });
+  let initialLength = 5;
+  let otherLength = 13;
+
+  for (let i = 0; i < initialLength; i++) {
+    initialRows.pushObject({ position: i });
+  }
+  assert.deepEqual(table.get('rows').getEach('position'), initialRows.getEach('position'), 'the table is initialized with a synced array');
+
+  table.setRowsSynced(otherRows);
+  assert.deepEqual(table.get('rows').getEach('position'), otherRows.getEach('position'), 'the synced array may be replaced');
+
+  for (let i = 0; i < otherLength; i++) {
+    otherRows.pushObject({ position: i });
+  }
+  assert.deepEqual(table.get('rows').getEach('position'), otherRows.getEach('position'), 'the replacement array is correctly synced');
+
+  initialRows.popObject();
+  assert.deepEqual(table.get('rows').getEach('position'), otherRows.getEach('position'), 'mutating the replaced array has no effect');
 });

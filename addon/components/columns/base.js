@@ -1,5 +1,6 @@
 import Ember from 'ember';
 import layout from 'ember-light-table/templates/components/columns/base';
+import DraggableColumnMixin from 'ember-light-table/mixins/draggable-column';
 import cssStyleify from 'ember-light-table/utils/css-styleify';
 
 const {
@@ -18,26 +19,34 @@ const {
  * @class Base Column
  */
 
-const Column = Component.extend({
+const Column = Component.extend(DraggableColumnMixin, {
   layout,
   tagName: 'th',
   classNames: ['lt-column'],
   attributeBindings: ['style', 'colspan', 'rowspan'],
-  classNameBindings: ['align', 'isGroupColumn:lt-group-column', 'isHideable', 'isSortable', 'isSorted', 'isResizable', 'column.classNames'],
+  classNameBindings: ['align', 'isGroupColumn:lt-group-column', 'isHideable', 'isSortable', 'isSorted', 'isResizable', 'isResizing', 'isDraggable', 'column.classNames'],
 
   isGroupColumn: computed.readOnly('column.isGroupColumn'),
   isSortable: computed.readOnly('column.sortable'),
   isSorted: computed.readOnly('column.sorted'),
   isHideable: computed.readOnly('column.hideable'),
   isResizable: computed.readOnly('column.resizable'),
+  isDraggable: computed.readOnly('column.draggable'),
+  isResizing: false,
 
   style: computed('column.width', function() {
     return cssStyleify(this.get('column').getProperties(['width']));
   }),
 
-  align: computed('column.align', function () {
+  align: computed('column.align', function() {
     return `align-${this.get('column.align')}`;
-  }).readOnly(),
+  }),
+
+  /**
+   * @property label
+   * @type {String}
+   */
+  label: computed.oneWay('column.label'),
 
   /**
    * @property table
@@ -58,16 +67,39 @@ const Column = Component.extend({
   tableActions: null,
 
   /**
+   * @property extra
+   * @type {Object}
+   */
+  extra: null,
+
+  /**
    * @property sortIcons
    * @type {Object}
    */
   sortIcons: null,
 
   /**
+   * @property sortIconProperty
+   * @type {String|null}
+   * @private
+   */
+  sortIconProperty: computed('column.{sortable,sorted,ascending}', function() {
+    let sorted = this.get('column.sorted');
+
+    if (sorted) {
+      let ascending = this.get('column.ascending');
+      return ascending ? 'iconAscending' : 'iconDescending';
+    }
+
+    let sortable = this.get('column.sortable');
+    return sortable ? 'iconSortable' : null;
+  }),
+
+  /**
    * @property colspan
    * @type {Number}
    */
-  colspan: computed('column', 'column.visibleSubColumns.[]', function () {
+  colspan: computed('column', 'column.visibleSubColumns.[]', function() {
     let subColumns = this.get('column.visibleSubColumns');
     return !isEmpty(subColumns) ? subColumns.length : 1;
   }),
@@ -76,16 +108,10 @@ const Column = Component.extend({
    * @property rowspan
    * @type {Number}
    */
-  rowspan: computed('column.visibleSubColumns.[]', function () {
+  rowspan: computed('column.visibleSubColumns.[]', function() {
     let subColumns = this.get('column.visibleSubColumns');
     return !isEmpty(subColumns) ? 1 : 2;
-  }),
-
-  actions: {
-    columnResized(width) {
-      this.sendAction('columnResized', this.get('column'), width);
-    }
-  }
+  })
 });
 
 Column.reopenClass({
